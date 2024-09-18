@@ -52,7 +52,7 @@ const createGameboard = (function () {
     if (matchingRow && matchingRow.length > 2) {
       return matchingRow.every((el) => el === matchingRow[0]);
     }
-  }
+  };
 
   const isMatchingHorizontalAxis = () => {
     return checkMatchingRow(board);
@@ -199,17 +199,124 @@ const gameController = (function () {
       console.log(`Player ${lastPlay.player.playerNumber} win!`);
     }
 
-    if (game.isBoardFull()) {
+    if (
+      game.isBoardFull() &&
+      !(
+        game.isMatchingDiagonalAxis() ||
+        game.isMatchingHorizontalAxis() ||
+        game.isMatchingVerticalAxis()
+      )
+    ) {
       console.log("Draw game. Play again!");
     }
   };
 
-  playRound();
+  const getCurrentPlayer = () => currentPlayer;
 
+  playRound();
 
   return {
     setPlayerName,
     getPlayerNames,
     playTurn,
+    getCurrentPlayer,
   };
+})();
+
+const displayController = (function () {
+  const playerFormDialog = document.querySelector("#player-form-dialog");
+  const openPlayerFormDialogBtn = document.querySelector(".rename-player-btn");
+  const closePlayerFormDialogBtn = document.querySelector(".cancel-btn");
+  const player1Input = document.querySelector("#player-1");
+  const player2Input = document.querySelector("#player-2");
+  const player1Element = document.querySelector(".player-name-1");
+  const player2Element = document.querySelector(".player-name-2");
+  const playerForm = document.querySelector(".player-form");
+  const gameboardElement = document.querySelector(".gameboard");
+
+  const game = gameController;
+  const gameboard = createGameboard;
+
+  openPlayerFormDialogBtn.addEventListener("click", () => {
+    playerFormDialog.showModal();
+  });
+
+  closePlayerFormDialogBtn.addEventListener("click", () => {
+    playerFormDialog.close();
+  });
+
+  const updatePlayerNamesOnDom = () => {
+    player1Element.textContent = game.getPlayerNames()[0];
+    player2Element.textContent = game.getPlayerNames()[1];
+  };
+
+  const isGameOver = () => {
+    return (
+      gameboard.isMatchingDiagonalAxis() ||
+      gameboard.isMatchingHorizontalAxis() ||
+      gameboard.isMatchingVerticalAxis() ||
+      gameboard.isBoardFull()
+    );
+  };
+
+  const updatePlayerTurnIndicator = () => {
+    const signals = document.querySelectorAll(".turn-signal");
+    signals.forEach((el) => el.classList.remove("show"));
+    const player = gameController.getCurrentPlayer();
+    signals[player.playerNumber - 1].classList.add("show");
+  };
+
+  const handleTdOnclick = (row, col) => {
+    if (isGameOver()) return;
+    game.playTurn(row, col);
+
+    displayBoard();
+    updatePlayerTurnIndicator();
+  };
+
+  // Change the player name
+  playerForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    game.setPlayerName(player1Input.value, 1);
+    game.setPlayerName(player2Input.value, 2);
+
+    player1Input.value = "";
+    player2Input.value = "";
+    updatePlayerNamesOnDom();
+    playerFormDialog.close();
+  });
+
+  const displayBoard = () => {
+    gameboardElement.innerHTML = "";
+    const board = gameboard.getBoard();
+    const trs = [];
+
+    const createTd = (content) => {
+      const td = document.createElement("td");
+      td.textContent = content;
+      return td;
+    };
+
+    for (let row = 0; row < board.length; row++) {
+      const tr = document.createElement("tr");
+      const col_array = [];
+      for (col = 0; col < board[row].length; col++) {
+        const el = board[row][col];
+        let i = col;
+        const td =
+          el === 1 ? createTd("X") : el === 2 ? createTd("O") : createTd("");
+        td.addEventListener("click", () => {
+          handleTdOnclick(row, i);
+        });
+        col_array.push(td);
+      }
+      tr.append(...col_array);
+      trs.push(tr);
+    }
+
+    gameboardElement.append(...trs);
+  };
+
+  displayBoard();
+  playerFormDialog.showModal();
 })();
