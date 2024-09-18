@@ -1,13 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
     <title>Tic Tac Toe</title>
     <script src="index.js" defer></script>
-</head>
-<body>
-    
-</body>
+  </head>
+  <body>
+    <dialog id="player-form-dialog">
+      <form class="player-form">
+        <div class="form-group">
+          <p class="player-symbol big">X</p>
+          <label for="player-1"> player 1 name: </label>
+          <input
+            type="text"
+            name="player-1"
+            id="player-1"
+            placeholder="player 1"
+          />
+        </div>
+        <div class="form-group">
+          <p class="player-symbol big">O</p>
+          <label for="player-2"> player 2 name: </label>
+          <input
+            type="text"
+            name="player-2"
+            id="player-2"
+            placeholder="player 2"
+          />
+        </div>
+        <div class="btns">
+          <button type="button" class="cancel-btn">Cancel</button>
+          <button type="submit">Save</button>
+        </div>
+      </form>
+    </dialog>
+    <div class="container">
+      <h1>Tic Tac Toe</h1>
+      <p class="versus">
+        <span class="player-name 1">Player 1</span> vs
+        <span class="player-name 2">Player 2</span>
+      </p>
+      <div class="game">
+        <div class="player-box">
+            <div class="turn-signal show"></div>
+          <p class="player-symbol">X</p>
+          <p class="scores">Wins: <span class="player-score 1">0</span></p>
+        </div>
+        <table class="gameboard">
+          <tr>
+            <td></td>
+            <td>X</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>O</td>
+          </tr>
+          <tr>
+            <td>O</td>
+            <td></td>
+            <td>X</td>
+          </tr>
+        </table>
+        <div class="player-box">
+            <div class="turn-signal"></div>
+          <p class="player-symbol">O</p>
+          <p class="scores">Wins: <span class="player-score 2">0</span></p>
+        </div>
+      </div>
+      <div class="btns">
+        <button class="reset-btn">Reset game</button>
+        <button class="rename-player-btn">Rename Players</button>
+      </div>
+    </div>
+  </body>
 </html>
