@@ -9,6 +9,10 @@ const createGameboard = (function () {
     return board[row][col] === 0;
   };
 
+  const printBoard = () => {
+    console.log(board);
+  };
+
   const isBoardFull = () => {
     for (let row = 0; row < board.length; row++) {
       for (col = 0; col < board[row].length; col++) {
@@ -18,7 +22,7 @@ const createGameboard = (function () {
     return true;
   };
 
-  const placePlayerValueOnBoard = (value, row, col) => {
+  const placePlayerNumberOnBoard = (value, row, col) => {
     if (row > board.length || col > board.length) return;
     if (!isCellFree(row, col)) return;
     board[row][col] = value;
@@ -43,40 +47,26 @@ const createGameboard = (function () {
     return filledAxis;
   };
 
-  const getHorizontalVerticalAxis = (direction) => {
-    board.forEach((_el, row) => {
-      if (
-        direction === "horizontal" &&
-        !isCellFree(row, 0) &&
-        !isCellFree(row, 1) &&
-        !isCellFree(row, 2)
-      ) {
-        return (
-          board[row][0] === board[row][1] &&
-          board[row][0] === board[row][2] &&
-          board[row][1] === board[row][2]
-        );
-      } else if (
-        direction === "vertical" &&
-        !isCellFree(0, row) &&
-        !isCellFree(1, row) &&
-        !isCellFree(2, row)
-      ) {
-        return (
-          board[0][row] === board[1][row] &&
-          board[0][row] === board[2][row] &&
-          board[1][row] === board[2][row]
-        );
-      }
-    });
-  };
+  const checkMatchingRow = (array) => {
+    const matchingRow = array.find((el) => !el.includes(0));
+    if (matchingRow && matchingRow.length > 2) {
+      return matchingRow.every((el) => el === matchingRow[0]);
+    }
+  }
 
   const isMatchingHorizontalAxis = () => {
-    return getHorizontalVerticalAxis("horizontal");
+    return checkMatchingRow(board);
   };
 
   const isMatchingVerticalAxis = () => {
-    return getHorizontalVerticalAxis("vertical");
+    let horizontalAxis = [];
+    // convert vertical to horizontal
+    for (let row = 0; row < board.length; row++) {
+      let rw = [];
+      rw.push(board[0][row], board[1][row], board[2][row]);
+      horizontalAxis.push(rw);
+    }
+    return checkMatchingRow(horizontalAxis);
   };
 
   const isMatchingDiagonalAxis = () => {
@@ -108,13 +98,14 @@ const createGameboard = (function () {
   };
 
   return {
-    placePlayerValueOnBoard,
+    placePlayerNumberOnBoard,
     isBoardFull,
     clearBoard,
     isMatchingDiagonalAxis,
     isMatchingHorizontalAxis,
     isMatchingVerticalAxis,
     getBoard,
+    printBoard,
   };
 })();
 
@@ -126,25 +117,46 @@ function createPlayer(name, playerNumber, marker) {
   };
 }
 
+const createGameFlow = (function () {
+  const gameFlow = [];
+
+  const addFlow = (player, row, col) => {
+    gameFlow.push({
+      player,
+      row,
+      col,
+    });
+  };
+
+  const getGameFLow = () => gameFlow;
+
+  const getLastPlay = () => gameFlow[gameFlow.length - 1];
+
+  const clearFlow = () => {
+    gameFlow.length = 0;
+  };
+
+  return {
+    addFlow,
+    clearFlow,
+    getGameFLow,
+    getLastPlay,
+  };
+})();
+
 const gameController = (function () {
   const game = createGameboard;
-  const player1 = createPlayer("player 1", 1, "X");
-  const player2 = createPlayer("player 2", 2, "O");
-  const players = [player1, player2];
+  const gameFlow = createGameFlow;
 
-  let currentPlayer = players[0];
+  const players = [
+    createPlayer("player 1", 1, "X"),
+    createPlayer("player 2", 2, "O"),
+  ];
 
   const setPlayerName = (name, playerNumber) => {
     const playerObj = players[playerNumber - 1];
     playerObj.name = name || `player ${playerNumber}`;
   };
-
-  const getCurrentPlayerTurn = () => currentPlayer;
-
-  const switchPlayerTurn = () =>
-    currentPlayer === players[0] ? players[1] : players[0];
-
-  const playRound = () => {};
 
   const getPlayerNames = () => {
     const playerNames = players.map((player) => {
@@ -153,84 +165,51 @@ const gameController = (function () {
     return playerNames;
   };
 
-  const getBoard = () => {
-    return game.getBoard();
+  let currentPlayer = players[0];
+
+  const switchPlayerTurn = (prevPlayer) =>
+    (currentPlayer = prevPlayer.playerNumber === 1 ? players[1] : players[0]);
+
+  const playTurn = (row, col) => {
+    game.placePlayerNumberOnBoard(currentPlayer.playerNumber, row, col);
+    gameFlow.addFlow(currentPlayer, row, col);
+    playRound();
   };
+
+  const playRound = () => {
+    const lastPlay = gameFlow.getLastPlay();
+    game.printBoard();
+
+    if (
+      !game.isBoardFull() &&
+      !game.isMatchingDiagonalAxis() &&
+      !game.isMatchingHorizontalAxis() &&
+      !game.isMatchingVerticalAxis()
+    ) {
+      if (lastPlay) {
+        switchPlayerTurn(lastPlay.player);
+      }
+    }
+
+    if (
+      game.isMatchingDiagonalAxis() ||
+      game.isMatchingHorizontalAxis() ||
+      game.isMatchingVerticalAxis()
+    ) {
+      console.log(`Player ${lastPlay.player.playerNumber} win!`);
+    }
+
+    if (game.isBoardFull()) {
+      console.log("Draw game. Play again!");
+    }
+  };
+
+  playRound();
+
 
   return {
-    getCurrentPlayerTurn,
     setPlayerName,
     getPlayerNames,
-    getBoard,
+    playTurn,
   };
-})();
-
-const displayController = (function () {
-  const playerFormDialog = document.querySelector("#player-form-dialog");
-  const openPlayerFormDialogBtn = document.querySelector(".rename-player-btn");
-  const closePlayerFormDialogBtn = document.querySelector(".cancel-btn");
-  const player1Input = document.querySelector("#player-1");
-  const player2Input = document.querySelector("#player-2");
-  const player1Element = document.querySelector(".player-name-1");
-  const player2Element = document.querySelector(".player-name-2");
-  const playerForm = document.querySelector(".player-form");
-  const gameboardElement = document.querySelector(".gameboard");
-
-  const game = gameController;
-
-  const playerTurn = game.getCurrentPlayerTurn();
-
-  openPlayerFormDialogBtn.addEventListener("click", () => {
-    playerFormDialog.showModal();
-  });
-
-  closePlayerFormDialogBtn.addEventListener("click", () => {
-    playerFormDialog.close();
-  });
-
-  const updatePlayerNamesOnDom = () => {
-    player1Element.textContent = game.getPlayerNames()[0];
-    player2Element.textContent = game.getPlayerNames()[1];
-  };
-
-  // Change the player name
-  playerForm.addEventListener("submit", function (e) {
-    e.preventDefault();
-    game.setPlayerName(player1Input.value, 1);
-    game.setPlayerName(player2Input.value, 2);
-
-    player1Input.value = "";
-    player2Input.value = "";
-    updatePlayerNamesOnDom();
-    playerFormDialog.close();
-  });
-
-  const displayBoard = () => {
-    gameboardElement.innerHTML = "";
-    const board = Array.from(game.getBoard());
-    const trs = [];
-    
-    const createTd = (content) => {
-      const td = document.createElement('td');
-      td.textContent = content;
-      return td;
-    }
-
-    for (let row = 0; row < board.length; row++) {
-      const tr = document.createElement('tr');
-      const col_array = [];
-      for (col = 0; col < board[row].length; col++) {
-        const el = board[row][col];
-        const td = el === 1 ? createTd('X') : el === 2 ? createTd('O') : createTd('');
-        col_array.push(td);
-      }
-      tr.append(...col_array);
-      trs.push(tr);
-    }
-    
-    gameboardElement.append(...trs);
-  };
-
-  displayBoard();
-  playerFormDialog.showModal();
 })();
