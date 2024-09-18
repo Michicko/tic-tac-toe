@@ -10,8 +10,8 @@ const createGameboard = (function () {
   };
 
   const isBoardFull = () => {
-    for (let row = 0; row < 3; row++) {
-      for (col = 0; col < 3; col++) {
+    for (let row = 0; row < board.length; row++) {
+      for (col = 0; col < board[row].length; col++) {
         if (isCellFree(row, col)) return false;
       }
     }
@@ -22,6 +22,10 @@ const createGameboard = (function () {
     if (row > board.length || col > board.length) return;
     if (!isCellFree(row, col)) return;
     board[row][col] = value;
+  };
+
+  const getBoard = () => {
+    return Array.from(board);
   };
 
   const getDiagonalAxis = (direction) => {
@@ -96,8 +100,8 @@ const createGameboard = (function () {
   };
 
   const clearBoard = () => {
-    for (let row = 0; row < 3; row++) {
-      for (col = 0; col < 3; col++) {
+    for (let row = 0; row < board.length; row++) {
+      for (col = 0; col < board[row].length; col++) {
         board[row][col].push(0);
       }
     }
@@ -110,6 +114,7 @@ const createGameboard = (function () {
     isMatchingDiagonalAxis,
     isMatchingHorizontalAxis,
     isMatchingVerticalAxis,
+    getBoard,
   };
 })();
 
@@ -132,7 +137,6 @@ const gameController = (function () {
   const setPlayerName = (name, playerNumber) => {
     const playerObj = players[playerNumber - 1];
     playerObj.name = name || `player ${playerNumber}`;
-    console.log(players);
   };
 
   const getCurrentPlayerTurn = () => currentPlayer;
@@ -149,10 +153,15 @@ const gameController = (function () {
     return playerNames;
   };
 
+  const getBoard = () => {
+    return game.getBoard();
+  };
+
   return {
     getCurrentPlayerTurn,
     setPlayerName,
     getPlayerNames,
+    getBoard,
   };
 })();
 
@@ -165,6 +174,7 @@ const displayController = (function () {
   const player1Element = document.querySelector(".player-name-1");
   const player2Element = document.querySelector(".player-name-2");
   const playerForm = document.querySelector(".player-form");
+  const gameboardElement = document.querySelector(".gameboard");
 
   const game = gameController;
 
@@ -195,5 +205,32 @@ const displayController = (function () {
     playerFormDialog.close();
   });
 
+  const displayBoard = () => {
+    gameboardElement.innerHTML = "";
+    const board = Array.from(game.getBoard());
+    const trs = [];
+    
+    const createTd = (content) => {
+      const td = document.createElement('td');
+      td.textContent = content;
+      return td;
+    }
+
+    for (let row = 0; row < board.length; row++) {
+      const tr = document.createElement('tr');
+      const col_array = [];
+      for (col = 0; col < board[row].length; col++) {
+        const el = board[row][col];
+        const td = el === 1 ? createTd('X') : el === 2 ? createTd('O') : createTd('');
+        col_array.push(td);
+      }
+      tr.append(...col_array);
+      trs.push(tr);
+    }
+    
+    gameboardElement.append(...trs);
+  };
+
+  displayBoard();
   playerFormDialog.showModal();
 })();
