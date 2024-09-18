@@ -113,34 +113,85 @@ const createGameboard = (function () {
   };
 })();
 
-function createPlayer(value, marker) {
+function createPlayer(name, playerNumber, marker) {
   return {
-    value,
+    name,
+    playerNumber,
     marker,
   };
 }
 
-const gameController = function () {
+const gameController = (function () {
   const game = createGameboard;
-
-  const players = [createPlayer(1, "X"), createPlayer(2, "O")];
+  const player1 = createPlayer("player 1", 1, "X");
+  const player2 = createPlayer("player 2", 2, "O");
+  const players = [player1, player2];
 
   let currentPlayer = players[0];
 
+  const setPlayerName = (name, playerNumber) => {
+    const playerObj = players[playerNumber - 1];
+    playerObj.name = name || `player ${playerNumber}`;
+    console.log(players);
+  };
+
+  const getCurrentPlayerTurn = () => currentPlayer;
+
   const switchPlayerTurn = () =>
     currentPlayer === players[0] ? players[1] : players[0];
-};
+
+  const playRound = () => {};
+
+  const getPlayerNames = () => {
+    const playerNames = players.map((player) => {
+      return player.name;
+    });
+    return playerNames;
+  };
+
+  return {
+    getCurrentPlayerTurn,
+    setPlayerName,
+    getPlayerNames,
+  };
+})();
 
 const displayController = (function () {
   const playerFormDialog = document.querySelector("#player-form-dialog");
   const openPlayerFormDialogBtn = document.querySelector(".rename-player-btn");
   const closePlayerFormDialogBtn = document.querySelector(".cancel-btn");
+  const player1Input = document.querySelector("#player-1");
+  const player2Input = document.querySelector("#player-2");
+  const player1Element = document.querySelector(".player-name-1");
+  const player2Element = document.querySelector(".player-name-2");
+  const playerForm = document.querySelector(".player-form");
+
+  const game = gameController;
+
+  const playerTurn = game.getCurrentPlayerTurn();
 
   openPlayerFormDialogBtn.addEventListener("click", () => {
     playerFormDialog.showModal();
   });
 
   closePlayerFormDialogBtn.addEventListener("click", () => {
+    playerFormDialog.close();
+  });
+
+  const updatePlayerNamesOnDom = () => {
+    player1Element.textContent = game.getPlayerNames()[0];
+    player2Element.textContent = game.getPlayerNames()[1];
+  };
+
+  // Change the player name
+  playerForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    game.setPlayerName(player1Input.value, 1);
+    game.setPlayerName(player2Input.value, 2);
+
+    player1Input.value = "";
+    player2Input.value = "";
+    updatePlayerNamesOnDom();
     playerFormDialog.close();
   });
 
