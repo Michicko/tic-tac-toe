@@ -1,3 +1,4 @@
+// Create board module
 const createGameboard = (function () {
   const board = [
     [0, 0, 0],
@@ -34,7 +35,7 @@ const createGameboard = (function () {
 
   const getDiagonalAxis = (direction) => {
     // get filled items on the diagonal axis
-    let filledAxis = board
+    let filledAxis = getBoard()
       .map((el, i) => {
         if (direction === "right") {
           return el[board.length - 1 - i];
@@ -55,7 +56,7 @@ const createGameboard = (function () {
   };
 
   const isMatchingHorizontalAxis = () => {
-    return checkMatchingRow(board);
+    return checkMatchingRow(getBoard());
   };
 
   const isMatchingVerticalAxis = () => {
@@ -91,8 +92,8 @@ const createGameboard = (function () {
 
   const clearBoard = () => {
     for (let row = 0; row < board.length; row++) {
-      for (col = 0; col < board[row].length; col++) {
-        board[row][col].push(0);
+      for (let col = 0; col < board[row].length; col++) {
+        board[row][col] = 0;
       }
     }
   };
@@ -106,17 +107,21 @@ const createGameboard = (function () {
     isMatchingVerticalAxis,
     getBoard,
     printBoard,
+    isCellFree,
   };
 })();
 
-function createPlayer(name, playerNumber, marker) {
+// Player factory
+function createPlayer(name, playerNumber, marker, wins) {
   return {
     name,
     playerNumber,
     marker,
+    wins,
   };
 }
 
+// Game flow module
 const createGameFlow = (function () {
   const gameFlow = [];
 
@@ -144,13 +149,14 @@ const createGameFlow = (function () {
   };
 })();
 
+// Game controller module
 const gameController = (function () {
   const game = createGameboard;
   const gameFlow = createGameFlow;
 
   const players = [
-    createPlayer("player 1", 1, "X"),
-    createPlayer("player 2", 2, "O"),
+    createPlayer("player 1", 1, "X", 0),
+    createPlayer("player 2", 2, "O", 0),
   ];
 
   const setPlayerName = (name, playerNumber) => {
@@ -171,47 +177,42 @@ const gameController = (function () {
     (currentPlayer = prevPlayer.playerNumber === 1 ? players[1] : players[0]);
 
   const playTurn = (row, col) => {
+    if (game.isCellFree(row, col)) {
+      gameFlow.addFlow(currentPlayer, row, col);
+    }
+
     game.placePlayerNumberOnBoard(currentPlayer.playerNumber, row, col);
-    gameFlow.addFlow(currentPlayer, row, col);
     playRound();
   };
 
   const playRound = () => {
     const lastPlay = gameFlow.getLastPlay();
-    game.printBoard();
-
-    if (
-      !game.isBoardFull() &&
-      !game.isMatchingDiagonalAxis() &&
-      !game.isMatchingHorizontalAxis() &&
-      !game.isMatchingVerticalAxis()
-    ) {
-      if (lastPlay) {
-        switchPlayerTurn(lastPlay.player);
-      }
-    }
-
+    
     if (
       game.isMatchingDiagonalAxis() ||
       game.isMatchingHorizontalAxis() ||
       game.isMatchingVerticalAxis()
     ) {
       console.log(`Player ${lastPlay.player.playerNumber} win!`);
-    }
-
-    if (
-      game.isBoardFull() &&
-      !(
-        game.isMatchingDiagonalAxis() ||
-        game.isMatchingHorizontalAxis() ||
-        game.isMatchingVerticalAxis()
-      )
-    ) {
+      lastPlay.player.wins += 1;
+      switchPlayerTurn(lastPlay.player);
+    } else if (game.isBoardFull()) {
       console.log("Draw game. Play again!");
+      switchPlayerTurn(lastPlay.player);
+    } else {
+      if (lastPlay) {
+        switchPlayerTurn(lastPlay.player);
+      }
     }
   };
 
   const getCurrentPlayer = () => currentPlayer;
+
+  const getPlayers = () => players;
+
+  const resetGame = () => {
+    game.clearBoard();
+  };
 
   playRound();
 
@@ -220,9 +221,12 @@ const gameController = (function () {
     getPlayerNames,
     playTurn,
     getCurrentPlayer,
+    resetGame,
+    getPlayers,
   };
 })();
 
+// Display controller module
 const displayController = (function () {
   const playerFormDialog = document.querySelector("#player-form-dialog");
   const openPlayerFormDialogBtn = document.querySelector(".rename-player-btn");
@@ -233,6 +237,7 @@ const displayController = (function () {
   const player2Element = document.querySelector(".player-name-2");
   const playerForm = document.querySelector(".player-form");
   const gameboardElement = document.querySelector(".gameboard");
+  const resetGameBtn = document.querySelector(".reset-btn");
 
   const game = gameController;
   const gameboard = createGameboard;
@@ -243,6 +248,13 @@ const displayController = (function () {
 
   closePlayerFormDialogBtn.addEventListener("click", () => {
     playerFormDialog.close();
+  });
+
+  resetGameBtn.disabled = true;
+
+  resetGameBtn.addEventListener("click", () => {
+    game.resetGame();
+    displayBoard();
   });
 
   const updatePlayerNamesOnDom = () => {
@@ -266,6 +278,12 @@ const displayController = (function () {
     signals[player.playerNumber - 1].classList.add("show");
   };
 
+  const updateScores = () => {
+    const scoresEls = document.querySelectorAll(".player-score");
+    scoresEls[0].textContent = game.getPlayers()[0].wins;
+    scoresEls[1].textContent = game.getPlayers()[1].wins;
+  };
+
   const handleTdOnclick = (row, col) => {
     if (isGameOver()) return;
     game.playTurn(row, col);
@@ -287,6 +305,11 @@ const displayController = (function () {
   });
 
   const displayBoard = () => {
+    if (isGameOver()) {
+      resetGameBtn.disabled = false;
+      updateScores();
+    }
+
     gameboardElement.innerHTML = "";
     const board = gameboard.getBoard();
     const trs = [];
