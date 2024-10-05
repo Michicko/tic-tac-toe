@@ -1,5 +1,5 @@
 const createGameboard = (function () {
-  const gameboard = [
+  let gameboard = [
     [0, 0, 0],
     [0, 0, 0],
     [0, 0, 0],
@@ -14,20 +14,31 @@ const createGameboard = (function () {
   };
 
   const clearGameboard = () => {
-    gameboard.forEach((el) => {
-      let i = 0;
-      while (i < el.length) {
-        el[i] = 0;
-        i += 1;
-      }
+    gameboard = [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ];
+  };
+
+  const isGameboardFull = () => {
+    let isFull = false;
+    gameboard.forEach((row) => {
+      isFull = row.every((col) => col > 0);
     });
+    return isFull;
   };
 
   const showBoard = () => {
     console.log(gameboard);
   };
 
-  return { gameboard, insertInGameboard, clearGameboard, showBoard };
+  return {
+    insertInGameboard,
+    clearGameboard,
+    showBoard,
+    isGameboardFull,
+  };
 })();
 
 export default createGameboard;
