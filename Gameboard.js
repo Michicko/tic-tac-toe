@@ -1,31 +1,21 @@
+import displayController from "./DisplayController.js";
+
 const createGameboard = (function () {
+  const { displayGameboardUI } = displayController;
   let gameboard = [
     [0, 0, 0],
     [0, 0, 0],
     [0, 0, 0],
   ];
 
-  const insertInGameboard = (value, row, col) => {
-    let inSerted = false;
-    if (gameboard[row][col]) return inSerted;
-    gameboard[row][col] = value;
-    inSerted = true;
-    return inSerted;
-  };
-
-  const clearGameboard = () => {
-    gameboard = [
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-    ];
-  };
-
   const isGameboardFull = () => {
     let isFull = false;
-    gameboard.forEach((row) => {
-      isFull = row.every((col) => col > 0);
-    });
+    isFull = !gameboard
+      .map((row) => {
+        const full = row.every((col) => col > 0);
+        return full;
+      })
+      .includes(false);
     return isFull;
   };
 
@@ -71,8 +61,26 @@ const createGameboard = (function () {
     return winner;
   };
 
+  const insertInGameboard = (value, row, col) => {
+    let inSerted = false;
+    if (gameboard[row][col] || getWinner() || isGameboardFull()) {
+      return inSerted;
+    }
+    gameboard[row][col] = value;
+    inSerted = true;
+    return inSerted;
+  };
+
+  const clearGameboard = () => {
+    gameboard = [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ];
+  };
+
   const showBoard = () => {
-    console.log(gameboard);
+    displayGameboardUI(gameboard);
   };
 
   return {
