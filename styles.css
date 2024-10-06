@@ -144,6 +144,9 @@ td:hover {
   padding: 2rem;
   border: none;
 }
+#alert-dialog {
+  margin: 2rem auto;
+}
 
 #game-dialog form {
   display: grid;
