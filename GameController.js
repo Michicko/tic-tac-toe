@@ -1,10 +1,6 @@
+import displayController from "./DisplayController.js";
 import createGameboard from "./Gameboard.js";
 import createGameFlow from "./Gameflow.js";
-
-const createPlayer = (num, marker) => ({
-  player: num,
-  marker,
-});
 
 const gameController = (function () {
   const {
@@ -15,9 +11,25 @@ const gameController = (function () {
     getWinner,
   } = createGameboard;
   const { appendFlow, getLastPlay, clearFlow } = createGameFlow;
+  const { setPlayerTurnUI, showAlert } = displayController;
 
-  const players = [createPlayer(1, "X"), createPlayer(2, "O")];
+  const players = [];
   let playerTurn = players[0];
+
+  const createPlayer = (name, num, marker) => ({
+    name,
+    player: num,
+    marker,
+  });
+
+  const createPlayers = (name, playerNum, marker) => {
+    const newPlayer = createPlayer(name, playerNum, marker);
+    if (players.length < 2) {
+      players.push(newPlayer);
+    }
+  };
+
+  
 
   const switchPlayerTurn = () => {
     playerTurn = getLastPlay().turn === 1 ? players[1] : players[0];
@@ -27,66 +39,35 @@ const gameController = (function () {
     clearGameboard();
     // eslint-disable-next-line prefer-destructuring
     playerTurn = players[0];
+    setPlayerTurnUI(playerTurn.player);
     clearFlow();
-  };
-
-  const startNewRound = () => {
-    startRound();
-
-  }
-
-  const printMessage = (message) => {
-    console.log(message);
+    showBoard();
   };
 
   const playTurn = (row, col) => {
-    let winner = getWinner();
-    let gameboardIsFull = isGameboardFull();
-
-    if (gameboardIsFull || winner) {
-      if (gameboardIsFull && !winner) {
-        printMessage("Game drawn!");
-        return;
-      }
-
-      if (winner) {
-        printMessage(
-          `Player ${winner} wins!!, You can't play gain, restart game`
-        );
-        return;
-      }
-    }
-
     const inSerted = insertInGameboard(playerTurn.player, row, col);
 
     if (inSerted) {
       appendFlow(playerTurn.player, row, col);
       switchPlayerTurn();
+      setPlayerTurnUI(playerTurn.player);
     }
 
-    gameboardIsFull = isGameboardFull();
-    winner = getWinner();
+    const winner = getWinner();
+    const gameIsFull = isGameboardFull();
 
     if (winner) {
-      printMessage(`Player ${winner} wins!!`);
+      showAlert(`Player ${getWinner()} Wins!!`);
     }
 
-    if (gameboardIsFull) {
-      printMessage("Draw game!");
+    if (gameIsFull && !winner) {
+      showAlert(`Tie Game!!`);
     }
 
     showBoard();
   };
 
-  playTurn(0, 0);
-  playTurn(0, 2);
-  playTurn(1, 1);
-  playTurn(0, 1);
-  playTurn(2, 2);
-  playTurn(2, 0);
-  playTurn(1, 0);
-
-  return { startRound, playTurn };
+  return { startRound, playTurn, createPlayers };
 })();
 
 export default gameController;

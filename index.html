@@ -5,9 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="styles.css" />
     <title>Tic Tac Toe</title>
-    <script src="index.js" defer></script>
+    <script src="index.js" defer type="module"></script>
   </head>
   <body>
-
+    <dialog id="alert-dialog">
+      <div class="alert">
+        <h2 class="text">Player 2 Wins!!</h2>
+        <button class="restart-btn">Play again</button>
+      </div>
+    </dialog>
+    <dialog id="game-dialog">
+      <h1>Tic Tac Toe</h1>
+      <form id="game-form">
+        <div class="form-group">
+          <label for="player1">Player 1:</label>
+          <input
+            type="text"
+            name="player1"
+            id="player1"
+            placeholder="Enter name"
+          />
+        </div>
+        <div class="form-group">
+          <label for="player2">Player 2:</label>
+          <input
+            type="text"
+            name="player2"
+            id="player2"
+            placeholder="Enter name"
+          />
+        </div>
+        <div class="btns">
+          <button type="submit">start game</button>
+        </div>
+      </form>
+    </dialog>
+    <div class="container">
+      <div class="gameboard-box">
+        <div class="player-info">
+          <p class="player-name p1">Player 1</p>
+          <div class="turn current"></div>
+          <p class="marker">X</p>
+        </div>
+        <table id="gameboard" class="gameboard"></table>
+        <div class="player-info">
+          <p class="player-name p2">Player 2</p>
+          <div class="turn"></div>
+          <p class="marker">O</p>
+        </div>
+      </div>
+      <button class="reset-game-btn">Restart game</button>
+    </div>
   </body>
 </html>

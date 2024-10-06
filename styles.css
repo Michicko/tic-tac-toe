@@ -1,0 +1,209 @@
+*,
+*::before,
+*::after {
+  padding: 0;
+  margin: 0;
+  box-sizing: inherit;
+}
+
+html {
+  font-size: 10px;
+  box-sizing: border-box;
+}
+
+body {
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4rem;
+  font-family: sans-serif;
+}
+
+.container {
+  max-width: 70rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rem;
+  display: none;
+}
+
+.container.start {
+  display: flex;
+}
+
+.game-info div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.gameboard {
+  height: 30rem;
+  width: 30rem;
+  margin: auto;
+  table-layout: fixed;
+}
+
+table,
+tr,
+td {
+  border: 1px solid #333;
+  border-collapse: collapse;
+}
+
+td {
+  height: 10rem;
+  width: 10rem;
+}
+
+tr {
+  white-space: nowrap;
+}
+
+.player-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.gameboard-box {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.player-info p:first-child,
+.score {
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  font-weight: 400;
+  color: #333;
+  text-transform: capitalize;
+}
+
+.marker,
+td {
+  font-size: 5rem;
+  font-weight: 500;
+}
+
+td {
+  vertical-align: center;
+  text-align: center;
+  transition: background 0.15s ease;
+  cursor: pointer;
+}
+
+td:hover {
+  background: #f5f4f4;
+}
+
+.player-turn {
+  font-size: 1.8rem;
+  font-weight: 400;
+  color: #333;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.restart-btn,
+#game-dialog button,
+#alert-dialog button {
+  height: 3.5rem;
+  min-width: 12rem;
+  font-size: 1.5rem;
+  font-weight: 400;
+  text-transform: capitalize;
+}
+
+.turn {
+  height: 1.2rem;
+  width: 1.2rem;
+  border-radius: 50%;
+  background: rgb(3, 141, 3);
+  display: none;
+}
+
+.turn.current {
+  display: block;
+}
+
+#game-dialog::backdrop,
+#alert-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+#game-dialog,
+#alert-dialog {
+  margin: auto;
+  padding: 2rem;
+  border: none;
+}
+
+#game-dialog form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  grid-template-areas:
+    "p1 p2"
+    "btn btn";
+}
+
+label,
+input[type="text"] {
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: #333;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  margin-bottom: 0.5rem;
+  text-transform: capitalize;
+}
+
+input[type="text"] {
+  padding: 0.8rem 1rem;
+  outline: none;
+  border: 1px solid #333;
+  border-radius: 0.4rem;
+  text-transform: capitalize;
+}
+
+#game-dialog > form > *:nth-child(1) {
+  grid-area: p1;
+}
+#game-dialog > form > *:nth-child(2) {
+  grid-area: p2;
+}
+#game-dialog > form > *:nth-child(3) {
+  grid-area: btn;
+  justify-self: center;
+}
+
+#game-dialog > form button {
+  justify-self: center;
+  min-width: 20rem;
+}
+
+h1,
+#alert-dialog h2 {
+  color: #333;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 3rem;
+  text-transform: capitalize;
+}
+
+#alert-dialog .alert{
+  display: flex;
+  flex-direction: column;
+}

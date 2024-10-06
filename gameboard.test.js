@@ -9,7 +9,7 @@ test("should return false when passed array with row and cols containing only 0"
       [0, 0, 0],
       [0, 0, 0],
     ])
-  ).toBe(false);
+  ).toBeFalsy();
 });
 
 test("should return true when passed array filled row and cols containing numbers greater than 0", () => {
@@ -19,7 +19,7 @@ test("should return true when passed array filled row and cols containing number
       [2, 1, 1],
       [2, 1, 1],
     ])
-  ).toBe(false);
+  ).toBeFalsy();
 });
 
 test("should return false when passed array with row and cols containing numbers  0, 1, 2", () => {
@@ -29,7 +29,17 @@ test("should return false when passed array with row and cols containing numbers
       [2, 0, 1],
       [0, 1, 1],
     ])
-  ).toBe(false);
+  ).toBeFalsy();
+});
+
+test("should return false when passed array not filled row and cols containing numbers greater 0", () => {
+  expect(
+    isGameboardFull([
+      [1, 0, 0],
+      [2, 1, 1],
+      [2, 1, 2],
+    ])
+  ).toBeFalsy();
 });
 
 test("should return 1 when passed gameboard with first row filled with 1", () => {
