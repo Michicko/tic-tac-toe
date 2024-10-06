@@ -111,6 +111,7 @@ td:hover {
 }
 
 .restart-btn,
+.reset-game-btn,
 #game-dialog button,
 #alert-dialog button {
   height: 3.5rem;
@@ -203,7 +204,7 @@ h1,
   text-transform: capitalize;
 }
 
-#alert-dialog .alert{
+#alert-dialog .alert {
   display: flex;
   flex-direction: column;
 }
