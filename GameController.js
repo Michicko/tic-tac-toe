@@ -29,8 +29,6 @@ const gameController = (function () {
     }
   };
 
-  
-
   const switchPlayerTurn = () => {
     playerTurn = getLastPlay().turn === 1 ? players[1] : players[0];
   };
