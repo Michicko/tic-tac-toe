@@ -12,7 +12,7 @@ npm install
 
 to install all packages
 
-Open in the browser using to run the game
+Open in the browser to run the game
 
 ```
 npm test
